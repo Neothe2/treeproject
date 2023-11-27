@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mytree',
-    'extended_tree_app'
+    'extended_tree_app',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
