@@ -19,14 +19,8 @@ class TreeNode2(TreeNode):
 
 
 class Tree1(Tree):
-    additional_info1 = models.CharField(max_length=200, blank=True)
-
-    def __str__(self):
-        return f'ExtendedTree with root: {self.root.data} and info: {self.additional_info1}'
+    pass
 
 
 class Tree2(Tree):
-    additional_info2 = models.CharField(max_length=200, blank=True)
-
-    def __str__(self):
-        return f'ExtendedTree with root: {self.root.data} and info: {self.additional_info2}'
+    pass
