@@ -25,20 +25,39 @@ from django.contrib.contenttypes.models import ContentType
 # tree2.save()
 
 
-tree1_root = TreeNode1(data='This is the root', extra_data1='This is the extradata1')
-tree1_root.save()
+# tree1_root = TreeNode1(data='This is the root', extra_data1='This is the extradata1')
+# tree1_root.save()
+#
+# tree1 = Tree1(root_node=tree1_root)
+# tree1.save()
+#
+# tree_node1 = TreeNode1(data='tree_node1', extra_data1='extradata1 for treenode1')
+# tree_node2 = TreeNode1(data='tree_node2', extra_data1='extradata1 for treenode2')
+# tree_node3 = TreeNode1(data='tree_node3', extra_data1='extradata1 for treenode3')
+#
+# tree_node1.save()
+# tree_node2.save()
+# tree_node3.save()
+#
+# tree1.add_node(tree_node1, tree1_root)
+# tree1.add_node(tree_node2, tree1_root)
+# tree1.add_node(tree_node3, tree_node1)
 
-tree1 = Tree1(root_node=tree1_root)
+
+tree2_root = TreeNode2(data='This is the root', extra_data2='This is the extradata2')
+tree2_root.save()
+
+tree1 = Tree2(root_node=tree2_root)
 tree1.save()
 
-tree_node1 = TreeNode1(data='tree_node1', extra_data1='extradata1 for treenode1')
-tree_node2 = TreeNode1(data='tree_node2', extra_data1='extradata1 for treenode2')
-tree_node3 = TreeNode1(data='tree_node3', extra_data1='extradata1 for treenode3')
+tree_node1 = TreeNode2(data='tree_node1', extra_data2='extradata2 for treenode1')
+tree_node2 = TreeNode2(data='tree_node2', extra_data2='extradata2 for treenode2')
+tree_node3 = TreeNode2(data='tree_node3', extra_data2='extradata2 for treenode3')
 
 tree_node1.save()
 tree_node2.save()
 tree_node3.save()
 
-tree1.add_node(tree_node1, tree1_root)
-tree1.add_node(tree_node2, tree1_root)
+tree1.add_node(tree_node1, tree2_root)
+tree1.add_node(tree_node2, tree2_root)
 tree1.add_node(tree_node3, tree_node1)

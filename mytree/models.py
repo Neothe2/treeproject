@@ -35,9 +35,17 @@ class Tree(models.Model):
     def __init__(self, *args, root_node=None, **kwargs):
         super().__init__(*args, **kwargs)
         if root_node is not None:
-            if not isinstance(root_node, TreeNode):
+            if not isinstance(root_node, TreeNode) or type(root_node) is TreeNode:
                 raise ValueError("root_node must be an instance of TreeNode or its subclass")
             self.set_root_node(root_node)
+
+    def save(self, *args, **kwargs):
+        if not self.root_node:
+            # Automatically create a new TreeNode as the root if not already set
+            root_node = TreeNode.objects.create(data="Root Node")
+            self.root_content_type = ContentType.objects.get_for_model(root_node)
+            self.root_object_id = root_node.id
+        super().save(*args, **kwargs)
 
 
     def set_root_node(self, node):
