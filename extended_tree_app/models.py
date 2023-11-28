@@ -24,3 +24,14 @@ class Tree1(Tree):
 
 class Tree2(Tree):
     pass
+
+
+class Tree3(Tree):
+    pass
+
+
+class TreeNode3(TreeNode):
+    extra_data3 = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = 'treenode3'
