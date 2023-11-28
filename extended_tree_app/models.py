@@ -32,6 +32,7 @@ class Tree3(Tree):
 
 class TreeNode3(TreeNode):
     extra_data3 = models.CharField(max_length=100, blank=True, null=True)
+    neofield = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         db_table = 'treenode3'

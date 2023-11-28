@@ -18,15 +18,14 @@ class TreeNode3Serializer(TreeNodeSerializer):
     children = serializers.SerializerMethodField()
     # extra_data3 = serializers.CharField(max_length=100, allow_blank=True, allow_null=True)
 
-
     def get_children(self, obj):
-        # This method will be used to serialize the children
-        children = obj.children.all()  # Assuming 'children' is the related name in the model
-        return TreeNode3Serializer(children, many=True).data
+        # Assuming 'children' is a reverse relation from TreeNode to TreeNode3
+        children_queryset = TreeNode3.objects.filter(parent=obj).select_related('treenode_ptr')
+        return TreeNode3Serializer(children_queryset, many=True).data
 
     class Meta(TreeNodeSerializer.Meta):
         model = TreeNode3
-        fields = TreeNodeSerializer.Meta.fields + ['extra_data3']
+        fields = TreeNodeSerializer.Meta.fields + ['extra_data3', 'neofield']
 
 
 class Tree3Serializer(TreeSerializer):
