@@ -4,7 +4,7 @@ from .models import TreeNode, Tree
 class TreeNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TreeNode
-        fields = ['id', 'data', 'parent', 'children']
+        fields = ['id', 'data', 'parent', 'children', 'forward_associations', 'backward_associations']
 
 
     children = serializers.SerializerMethodField()

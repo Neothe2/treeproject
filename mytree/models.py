@@ -2,11 +2,25 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 # Create your models here.
 class TreeNode(models.Model):
     data = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+
+    forward_associations = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='backward_associations',
+        blank=True
+    )
+
+
+# Signal receiver to update backward associations
+
 
     def add_child(self, child_node):
         # Ensure the child_node is a TreeNode instance
@@ -24,6 +38,20 @@ class TreeNode(models.Model):
 
     def __str__(self):
         return self.data
+
+@receiver(m2m_changed, sender=TreeNode.forward_associations.through)
+def update_backward_associations(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add":
+        if not reverse:
+            # Forward association added, update backward associations
+            for pk in pk_set:
+                associated_node = model.objects.get(pk=pk)
+                associated_node.backward_associations.add(instance)
+        else:
+            # Backward association added, update forward associations
+            for pk in pk_set:
+                associated_node = model.objects.get(pk=pk)
+                associated_node.forward_associations.add(instance)
 
 
 class Tree(models.Model):
