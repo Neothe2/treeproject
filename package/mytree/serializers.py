@@ -20,3 +20,5 @@ class TreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tree
         fields = ['id', 'root_node']
+
+
