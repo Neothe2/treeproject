@@ -129,6 +129,8 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
 
             return Response({'status': 'Node added successfully'}, status=status.HTTP_200_OK)
 
+
+
     return GenericTreeViewSet
 
 def customTreeNodeViewSet(serializer_class, model):
@@ -150,5 +152,26 @@ def customTreeNodeViewSet(serializer_class, model):
                 return Response(child_serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(child_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        @action(detail=True, methods=['post'])
+        def associate_node(self, request, pk=None):
+            # Get the current node
+            current_node = self.get_object()
+
+            # Retrieve the ID of the node to associate
+            target_node_id = request.data.get('id')
+            if not target_node_id:
+                return Response({'error': 'Node ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                # Fetch the node to be associated
+                target_node = TreeNode.objects.get(pk=target_node_id)
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Associate the target node with the current node
+            current_node.associate_node(target_node)
+
+            return Response({'status': 'Node associated successfully'}, status=status.HTTP_200_OK)
 
     return GenericTreeNodeViewSet

@@ -10,6 +10,7 @@ from django.dispatch import receiver
 class TreeNode(models.Model):
     data = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    order = models.IntegerField(null=True, blank=True)
 
     forward_associations = models.ManyToManyField(
         'self',
@@ -17,6 +18,16 @@ class TreeNode(models.Model):
         related_name='backward_associations',
         blank=True
     )
+
+    def associate_node(self, node):
+        """
+        Associates the given node with the current node.
+        """
+        if not isinstance(node, TreeNode):
+            raise ValueError("The node must be an instance of TreeNode")
+
+        # Accessing the related manager for forward_associations
+        self.forward_associations.add(node)
 
 
 # Signal receiver to update backward associations

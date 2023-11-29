@@ -22,3 +22,8 @@ class TreeSerializer(serializers.ModelSerializer):
         fields = ['id', 'root_node']
 
 
+#Indent forward: Yes
+#Indent backward: Yes
+#Change order: Yes
+#Editing: Yes
+#Add: Yes

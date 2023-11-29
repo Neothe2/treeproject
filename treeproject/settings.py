@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mytree',
     'extended_tree_app',
-    'rest_framework'
+    'rest_framework',
+    'reqspec'
 ]
 
 MIDDLEWARE = [

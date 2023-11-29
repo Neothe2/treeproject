@@ -3,10 +3,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
+
 # Create your models here.
 class TreeNode(models.Model):
     data = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+
 
     def add_child(self, child_node):
         # Ensure the child_node is a TreeNode instance
@@ -31,7 +33,6 @@ class Tree(models.Model):
     root_object_id = models.PositiveIntegerField(null=True, blank=True)
     root_node = GenericForeignKey('root_content_type', 'root_object_id')
 
-
     def __init__(self, *args, root_node=None, **kwargs):
         super().__init__(*args, **kwargs)
         if root_node is not None:
@@ -47,19 +48,18 @@ class Tree(models.Model):
     #         self.root_object_id = root_node.id
     #     super().save(*args, **kwargs)
 
-
     def set_root_node(self, node):
         if not isinstance(node, TreeNode) or type(node) is TreeNode:
             raise ValueError("node must be an instance of a TreeNode subclass")
 
         # Check if a Tree already exists with this node as root
-        if Tree.objects.filter(root_content_type=ContentType.objects.get_for_model(type(node)), root_object_id=node.id).exists():
+        if Tree.objects.filter(root_content_type=ContentType.objects.get_for_model(type(node)),
+                               root_object_id=node.id).exists():
             raise ValidationError("This node is already set as a root for another tree")
 
         self.root_content_type = ContentType.objects.get_for_model(type(node))
         self.root_object_id = node.id
         self.save()
-
 
     def add_node(self, node, under):
         if not isinstance(node, TreeNode) or type(node) is TreeNode:
