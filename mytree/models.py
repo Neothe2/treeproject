@@ -27,48 +27,40 @@ class TreeNode(models.Model):
 
 
 class Tree(models.Model):
-    root_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
-    root_object_id = models.PositiveIntegerField(null=True, blank=True)
-    root_node = GenericForeignKey('root_content_type', 'root_object_id')
-
+    root_node = models.OneToOneField(TreeNode, on_delete=models.CASCADE, related_name='tree')
 
     def __init__(self, *args, root_node=None, **kwargs):
         super().__init__(*args, **kwargs)
         if root_node is not None:
-            if not isinstance(root_node, TreeNode) or type(root_node) is TreeNode:
-                raise ValueError("root_node must be an instance of TreeNode or its subclass")
             self.set_root_node(root_node)
 
     # def save(self, *args, **kwargs):
-    #     if not self.root_node:
+    #     if not self.root_node_id:
     #         # Automatically create a new TreeNode as the root if not already set
     #         root_node = TreeNode.objects.create(data="Root Node")
-    #         self.root_content_type = ContentType.objects.get_for_model(root_node)
-    #         self.root_object_id = root_node.id
+    #         self.root_node = root_node
     #     super().save(*args, **kwargs)
 
-
     def set_root_node(self, node):
-        if not isinstance(node, TreeNode) or type(node) is TreeNode:
-            raise ValueError("node must be an instance of a TreeNode subclass")
+        if not isinstance(node, TreeNode):
+            raise ValueError("node must be an instance of TreeNode or its subclass")
 
         # Check if a Tree already exists with this node as root
-        if Tree.objects.filter(root_content_type=ContentType.objects.get_for_model(type(node)), root_object_id=node.id).exists():
+        if Tree.objects.filter(root_node=node).exists():
             raise ValidationError("This node is already set as a root for another tree")
 
-        self.root_content_type = ContentType.objects.get_for_model(type(node))
-        self.root_object_id = node.id
+        self.root_node = node
         self.save()
 
-
     def add_node(self, node, under):
-        if not isinstance(node, TreeNode) or type(node) is TreeNode:
-            raise ValueError("node must be an instance of a TreeNode subclass")
+        if not isinstance(node, TreeNode):
+            raise ValueError("node must be an instance of TreeNode or its subclass")
 
-        if not isinstance(under, TreeNode) or type(under) is TreeNode:
-            raise ValueError("node must be an instance of a TreeNode subclass")
+        if not isinstance(under, TreeNode):
+            raise ValueError("under must be an instance of TreeNode or its subclass")
 
         under.add_child(node)
 
     def __str__(self):
         return f'Tree with root: {self.root_node}'
+

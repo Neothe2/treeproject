@@ -74,6 +74,12 @@ from .serializers import TreeSerializer
 #         instance = model(**serializer.validated_data)
 #         instance.save()
 
+# from rest_framework import viewsets, status
+# from rest_framework.decorators import action
+# from rest_framework.response import Response
+# from rest_framework.exceptions import ValidationError
+# from .models import TreeNode, Tree
+
 def customTreeViewSet(serializer_class, model, tree_node_model):
     class GenericTreeViewSet(viewsets.ModelViewSet):
         def get_serializer_class(self):
@@ -93,18 +99,17 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
             if not issubclass(model, Tree):
                 raise ValidationError("Invalid model type")
 
-            newroot = None
-            if issubclass(tree_node_model, TreeNode) or tree_node_model is TreeNode:
-                newroot = tree_node_model(data='Root Node')
-            else:
-                newroot = TreeNode(data='Root Node')
-
-            newroot.save()
             # Create an instance of the correct model
             instance = model(**serializer.validated_data)
 
+            # Create a new root node if it doesn't exist
+            if not hasattr(instance, 'root_node') or instance.root_node is None:
+                newroot = tree_node_model.objects.create(data='Root Node')
+                instance.root_node = newroot
+                instance.save()
+
             instance.save()
-            instance.set_root_node(newroot)
+
 
         @action(detail=True, methods=['post'])
         def add_node(self, request, pk=None):
@@ -120,17 +125,11 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
 
             # Create a new TreeNode with the unpacked node_data
             new_node = tree_node_model.objects.create(**node_data)
-
             under_node.add_child(new_node)
 
             return Response({'status': 'Node added successfully'}, status=status.HTTP_200_OK)
 
-        # def create_new_node(self, request):
-        #     node_text = request.data.get('node')
-        #     new_node = tree_node_model.objects.create(data=node_text, extra_data='aaaa')
-
     return GenericTreeViewSet
-
 
 def customTreeNodeViewSet(serializer_class, model):
     class GenericTreeNodeViewSet(viewsets.ModelViewSet):
@@ -153,5 +152,3 @@ def customTreeNodeViewSet(serializer_class, model):
                 return Response(child_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return GenericTreeNodeViewSet
-
-
