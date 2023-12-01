@@ -82,6 +82,7 @@ from .serializers import TreeSerializer
 
 def customTreeViewSet(serializer_class, model, tree_node_model):
     class GenericTreeViewSet(viewsets.ModelViewSet):
+        queryset = model.objects.all()
         def get_serializer_class(self):
             return serializer_class
 
@@ -90,6 +91,7 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
 
         def get_queryset(self):
             return self.get_model().objects.all()
+
 
         def perform_create(self, serializer):
             # Dynamically determine the model class
@@ -106,9 +108,17 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
             if not hasattr(instance, 'root_node') or instance.root_node is None:
                 newroot = tree_node_model.objects.create(data='Root Node')
                 instance.root_node = newroot
-                instance.save()
 
             instance.save()
+            return instance
+
+        def create(self, request, *args, **kwargs):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            instance = self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+
+            return Response({'id': instance.pk}, status=status.HTTP_201_CREATED, headers=headers)
 
 
         @action(detail=True, methods=['post'])
@@ -127,7 +137,7 @@ def customTreeViewSet(serializer_class, model, tree_node_model):
             new_node = tree_node_model.objects.create(**node_data)
             under_node.add_child(new_node)
 
-            return Response({'status': 'Node added successfully'}, status=status.HTTP_200_OK)
+            return Response({'status': 'Node added successfully', 'id': new_node.pk}, status=status.HTTP_201_CREATED)
 
 
 
@@ -173,5 +183,20 @@ def customTreeNodeViewSet(serializer_class, model):
             current_node.associate_node(target_node)
 
             return Response({'status': 'Node associated successfully'}, status=status.HTTP_200_OK)
+
+        @action(detail=True, methods=['get'])
+        def get_tree_id(self, request, pk=None):
+            try:
+                node = self.get_object()
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+            tree_id = node.get_tree_id()
+            if tree_id is not None:
+                return Response({'tree_id': tree_id})
+            else:
+                return Response({'error': 'This node is not part of any tree.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
     return GenericTreeNodeViewSet

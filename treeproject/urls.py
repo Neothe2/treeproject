@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('prj/', include('extended_tree_app.urls'))
+    path('prj/', include('extended_tree_app.urls')),
+    path('reqspec/', include('reqspec.urls'))
 ]
