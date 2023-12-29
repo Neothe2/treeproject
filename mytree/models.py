@@ -5,12 +5,14 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from model_utils.managers import InheritanceManager
 
 # Create your models here.
 class TreeNode(models.Model):
     data = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     order = models.IntegerField(null=True, blank=True)
+    url = ''
 
     forward_associations = models.ManyToManyField(
         'self',
@@ -18,6 +20,7 @@ class TreeNode(models.Model):
         related_name='backward_associations',
         blank=True
     )
+    objects = InheritanceManager()
 
     def associate_node(self, node):
         """
@@ -46,6 +49,26 @@ class TreeNode(models.Model):
         # Set the child_node's parent to self and save
         child_node.parent = self
         child_node.save()
+
+
+    def get_tree_id(self):
+        """
+        Returns the ID of the tree this node belongs to.
+        """
+        # Start with the current node
+        node = self
+
+        # Traverse up to the root node
+        while node.parent is not None:
+            node = node.parent
+
+        # At this point, 'node' is the root node
+        # Now, get the tree associated with this root node
+        # Assuming the Tree model has a 'root_node' field pointing to TreeNode
+        tree = Tree.objects.filter(root_node=node).first()
+
+        # Return the ID of the tree, or None if not found
+        return tree.id if tree else None
 
     def __str__(self):
         return self.data
