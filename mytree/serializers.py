@@ -15,7 +15,7 @@ class TreeNodeSerializer(serializers.ModelSerializer):
         # This method will be used to serialize the children
         children = obj.children.all()  # Assuming 'children' is the related name in the model
         return TreeNodeSerializer(children, many=True).data
-
+#git
     def get_forward_associations(self, obj):
         # Use select_subclasses() to get instances of the specific subclasses
         associated_nodes = obj.forward_associations.all().select_subclasses()
