@@ -7,6 +7,7 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 twine = "*"
+django-model-utils = "*"
 
 [dev-packages]
 

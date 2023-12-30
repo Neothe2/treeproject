@@ -30,12 +30,12 @@ class ExceptionFlow(Tree):
 
 
 class MainFlowStep(TreeNode):
-    pass
+    url = 'main_flow_steps'
 
 
 class AlternateFlowStep(TreeNode):
-    pass
+    url = 'alternate_flow_steps'
 
 
 class ExceptionFlowStep(TreeNode):
-    pass
+    url = 'exception_flow_steps'

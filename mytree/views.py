@@ -198,5 +198,58 @@ def customTreeNodeViewSet(serializer_class, model):
                 return Response({'error': 'This node is not part of any tree.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+        @action(detail=True, methods=['post'])
+        def unassociate_forward(self, request, pk=None):
+            try:
+                node = self.get_object()
+                target_node_id = request.data.get('id')
+                if target_node_id is None:
+                    return Response({'error': 'Node ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+                node.unassociate_forward_association(target_node_id)
+                return Response({'status': 'Forward association removed successfully'}, status=status.HTTP_200_OK)
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        @action(detail=True, methods=['post'])
+        def unassociate_backward(self, request, pk=None):
+            try:
+                node = self.get_object()
+                target_node_id = request.data.get('id')
+                if target_node_id is None:
+                    return Response({'error': 'Node ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+                node.unassociate_backwards_association(target_node_id)
+                return Response({'status': 'Backward association removed successfully'}, status=status.HTTP_200_OK)
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        @action(detail=True, methods=['get'])
+        def forward_associations(self, request, pk=None):
+            try:
+                node = self.get_object()
+                associated_nodes = node.forward_associations.all().select_subclasses()
+                associations = [
+                    {"id": associated_node.id, "url": type(associated_node).url}
+                    for associated_node in associated_nodes
+                ]
+                return Response(associations)
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        @action(detail=True, methods=['get'])
+        def backward_associations(self, request, pk=None):
+            try:
+                node = self.get_object()
+                associated_nodes = node.backward_associations.all().select_subclasses()
+                associations = [
+                    {"id": associated_node.id, "url": type(associated_node).url}
+                    for associated_node in associated_nodes
+                ]
+                return Response(associations)
+            except model.DoesNotExist:
+                return Response({'error': 'TreeNode with the given ID does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
     return GenericTreeNodeViewSet

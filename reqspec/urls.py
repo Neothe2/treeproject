@@ -10,9 +10,9 @@ from .views import customStepViewSet, UseCaseDescriptionViewSet
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'main_flow_steps', customStepViewSet(MainFlowStepSerializer, MainFlowStep))
-router.register(r'alternate_flow_steps', customStepViewSet(AlternateFlowStepSerializer, AlternateFlowStep))
-router.register(r'exception_flow_steps', customStepViewSet(ExceptionFlowStepSerializer, ExceptionFlowStep))
+router.register(MainFlowStep.url, customStepViewSet(MainFlowStepSerializer, MainFlowStep))
+router.register(AlternateFlowStep.url, customStepViewSet(AlternateFlowStepSerializer, AlternateFlowStep))
+router.register(ExceptionFlowStep.url, customStepViewSet(ExceptionFlowStepSerializer, ExceptionFlowStep))
 router.register(r'main_flows', customTreeViewSet(MainFlowSerializer, MainFlow, MainFlowStep))
 router.register(r'alternate_flows', customTreeViewSet(AlternateFlowSerializer, AlternateFlow, AlternateFlowStep))
 router.register(r'exception_flows', customTreeViewSet(ExceptionFlowSerializer, ExceptionFlow, ExceptionFlowStep))
