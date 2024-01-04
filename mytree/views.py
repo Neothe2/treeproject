@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -162,6 +163,23 @@ def customTreeNodeViewSet(serializer_class, model):
                 return Response(child_serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(child_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+        @action(detail=False, methods=['post'])
+        def set_order(self, request):
+            step_orders = request.data  # Expecting format: { "20": 1, "21": 2, "32": 3 }
+            try:
+                with transaction.atomic():
+                    for step_id, order in step_orders.items():
+                        step_id = int(step_id)  # Convert to integer if necessary
+                        order = int(order)  # Convert to integer if necessary
+                        # Use the default manager to get a normal QuerySet
+                        node = model.objects.get(id=step_id)
+                        node.order = order
+                        node.save()
+                return Response({"message": "Step orders updated successfully."})
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         @action(detail=True, methods=['post'])
         def associate_node(self, request, pk=None):
